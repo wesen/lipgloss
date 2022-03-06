@@ -78,13 +78,22 @@ type rules map[propKey]interface{}
 // Style{} primitive, it's recommended to use this function for creating styles
 // incase the underlying implementation changes.
 func NewStyle() Style {
-	return Style{}
+	return Style{
+		te: &termenv.Style{},
+	}
+}
+
+func NewStyleWithTermenv(te *termenv.Style) Style {
+	return Style{
+		te: te,
+	}
 }
 
 // Style contains a set of rules that comprise a style as a whole.
 type Style struct {
 	rules map[propKey]interface{}
 	value string
+	te    *termenv.Style
 }
 
 // SetString sets the underlying string value for this style. To render once
