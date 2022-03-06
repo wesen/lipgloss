@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"fmt"
 	"strings"
 	"unicode"
 
@@ -294,7 +295,9 @@ func (s Style) Render(str string) string {
 					b.WriteString(te.Styled(string(r)))
 				}
 			} else {
-				b.WriteString(te.Styled(l[i]))
+				styled := te.Styled(l[i])
+				fmt.Printf("styled: %v\n", styled)
+				b.WriteString(styled)
 			}
 			if i != len(l)-1 {
 				b.WriteRune('\n')
