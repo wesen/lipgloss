@@ -9,3 +9,5 @@ require (
 	github.com/muesli/termenv v0.11.1-0.20220204194139-01dd0df73b0b
 	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
 )
+
+replace github.com/muesli/termenv => /home/manuel/code/others/charmbracelet/termenv
