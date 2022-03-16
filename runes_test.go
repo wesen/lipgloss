@@ -1,6 +1,8 @@
 package lipgloss
 
 import (
+	"github.com/muesli/termenv"
+	"os"
 	"strings"
 	"testing"
 )
@@ -8,8 +10,9 @@ import (
 func TestStyleRunes(t *testing.T) {
 	t.Parallel()
 
-	matchedStyle := NewStyle().Reverse(true)
-	unmatchedStyle := NewStyle()
+	style := NewStyleWithOutput(termenv.NewOutput(os.Stdout))
+	matchedStyle := style.Copy().Reverse(true)
+	unmatchedStyle := style.Copy()
 
 	tt := []struct {
 		input    string
