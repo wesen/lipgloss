@@ -1,6 +1,7 @@
 package lipgloss
 
 import (
+	"os"
 	"strings"
 	"unicode"
 
@@ -77,9 +78,16 @@ type rules map[propKey]interface{}
 // NewStyle returns a new, empty Style.  While it's syntactic sugar for the
 // Style{} primitive, it's recommended to use this function for creating styles
 // incase the underlying implementation changes.
+// We use the os.Stdout profile per default.
 func NewStyle() Style {
+	return NewStyleWithOutput(termenv.NewOutput(os.Stdout))
+}
+
+func NewStyleWithProfile(profile termenv.Profile) Style {
 	return Style{
-		te: &termenv.Style{},
+		te: &termenv.Style{
+			Profile: profile,
+		},
 	}
 }
 
@@ -87,6 +95,12 @@ func NewStyleWithTermenv(te *termenv.Style) Style {
 	return Style{
 		te: te,
 	}
+}
+
+func NewStyleWithOutput(output *termenv.Output) Style {
+	return NewStyleWithTermenv(&termenv.Style{
+		Profile: output.Profile,
+	})
 }
 
 // Style contains a set of rules that comprise a style as a whole.
@@ -126,6 +140,7 @@ func (s Style) Copy() Style {
 		o.rules[k] = v
 	}
 	o.value = s.value
+	o.te = s.te
 	return o
 }
 
@@ -154,6 +169,7 @@ func (s Style) Inherit(i Style) Style {
 
 		if _, exists := s.rules[k]; exists {
 			continue
+			/**/
 		}
 		s.rules[k] = v
 	}
@@ -163,9 +179,9 @@ func (s Style) Inherit(i Style) Style {
 // Render applies the defined style formatting to a given string.
 func (s Style) Render(str string) string {
 	var (
-		te           termenv.Style
-		teSpace      termenv.Style
-		teWhitespace termenv.Style
+		te           = termenv.Style{Profile: s.te.Profile}
+		teSpace      = termenv.Style{Profile: s.te.Profile}
+		teWhitespace = termenv.Style{Profile: s.te.Profile}
 
 		bold          = s.getAsBool(boldKey, false)
 		italic        = s.getAsBool(italicKey, false)

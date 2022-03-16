@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/muesli/termenv"
 	"os"
 	"strings"
 
@@ -25,17 +26,21 @@ var (
 
 	// General.
 
+	output = os.Stderr
+
 	subtle    = lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#383838"}
 	highlight = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#7D56F4"}
 	special   = lipgloss.AdaptiveColor{Light: "#43BF6D", Dark: "#73F59F"}
 
-	divider = lipgloss.NewStyle().
+	style = lipgloss.NewStyleWithOutput(termenv.NewOutput(output))
+
+	divider = style.Copy().
 		SetString("•").
 		Padding(0, 1).
 		Foreground(subtle).
 		String()
 
-	url = lipgloss.NewStyle().Foreground(special).Render
+	url = style.Copy().Foreground(special).Render
 
 	// Tabs.
 
@@ -61,7 +66,7 @@ var (
 		BottomRight: "┴",
 	}
 
-	tab = lipgloss.NewStyle().
+	tab = style.Copy().
 		Border(tabBorder, true).
 		BorderForeground(highlight).
 		Padding(0, 1)
@@ -75,7 +80,7 @@ var (
 
 	// Title.
 
-	titleStyle = lipgloss.NewStyle().
+	titleStyle = style.Copy().
 			MarginLeft(1).
 			MarginRight(5).
 			Padding(0, 1).
@@ -83,16 +88,16 @@ var (
 			Foreground(lipgloss.Color("#FFF7DB")).
 			SetString("Lip Gloss")
 
-	descStyle = lipgloss.NewStyle().MarginTop(1)
+	descStyle = style.Copy().MarginTop(1)
 
-	infoStyle = lipgloss.NewStyle().
+	infoStyle = style.Copy().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderTop(true).
 			BorderForeground(subtle)
 
 	// Dialog.
 
-	dialogBoxStyle = lipgloss.NewStyle().
+	dialogBoxStyle = style.Copy().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(lipgloss.Color("#874BFD")).
 			Padding(1, 0).
@@ -101,7 +106,7 @@ var (
 			BorderRight(true).
 			BorderBottom(true)
 
-	buttonStyle = lipgloss.NewStyle().
+	buttonStyle = style.Copy().
 			Foreground(lipgloss.Color("#FFF7DB")).
 			Background(lipgloss.Color("#888B7E")).
 			Padding(0, 3).
@@ -115,29 +120,29 @@ var (
 
 	// List.
 
-	list = lipgloss.NewStyle().
+	list = style.Copy().
 		Border(lipgloss.NormalBorder(), false, true, false, false).
 		BorderForeground(subtle).
 		MarginRight(2).
 		Height(8).
 		Width(columnWidth + 1)
 
-	listHeader = lipgloss.NewStyle().
+	listHeader = style.Copy().
 			BorderStyle(lipgloss.NormalBorder()).
 			BorderBottom(true).
 			BorderForeground(subtle).
 			MarginRight(2).
 			Render
 
-	listItem = lipgloss.NewStyle().PaddingLeft(2).Render
+	listItem = style.Copy().PaddingLeft(2).Render
 
-	checkMark = lipgloss.NewStyle().SetString("✓").
+	checkMark = style.Copy().SetString("✓").
 			Foreground(special).
 			PaddingRight(1).
 			String()
 
 	listDone = func(s string) string {
-		return checkMark + lipgloss.NewStyle().
+		return checkMark + style.Copy().
 			Strikethrough(true).
 			Foreground(lipgloss.AdaptiveColor{Light: "#969B86", Dark: "#696969"}).
 			Render(s)
@@ -145,7 +150,7 @@ var (
 
 	// Paragraphs/History.
 
-	historyStyle = lipgloss.NewStyle().
+	historyStyle = style.Copy().
 			Align(lipgloss.Left).
 			Foreground(lipgloss.Color("#FAFAFA")).
 			Background(highlight).
@@ -156,15 +161,15 @@ var (
 
 	// Status Bar.
 
-	statusNugget = lipgloss.NewStyle().
+	statusNugget = style.Copy().
 			Foreground(lipgloss.Color("#FFFDF5")).
 			Padding(0, 1)
 
-	statusBarStyle = lipgloss.NewStyle().
+	statusBarStyle = style.Copy().
 			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
 			Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"})
 
-	statusStyle = lipgloss.NewStyle().
+	statusStyle = style.Copy().
 			Inherit(statusBarStyle).
 			Foreground(lipgloss.Color("#FFFDF5")).
 			Background(lipgloss.Color("#FF5F87")).
@@ -175,17 +180,17 @@ var (
 			Background(lipgloss.Color("#A550DF")).
 			Align(lipgloss.Right)
 
-	statusText = lipgloss.NewStyle().Inherit(statusBarStyle)
+	statusText = style.Copy().Inherit(statusBarStyle)
 
 	fishCakeStyle = statusNugget.Copy().Background(lipgloss.Color("#6124DF"))
 
 	// Page.
 
-	docStyle = lipgloss.NewStyle().Padding(1, 2, 1, 2)
+	docStyle = style.Copy().Padding(1, 2, 1, 2)
 )
 
 func main() {
-	physicalWidth, _, _ := term.GetSize(int(os.Stdout.Fd()))
+	physicalWidth, _, _ := term.GetSize(int(output.Fd()))
 	doc := strings.Builder{}
 
 	// Tabs
@@ -233,7 +238,7 @@ func main() {
 		okButton := activeButtonStyle.Render("Yes")
 		cancelButton := buttonStyle.Render("Maybe")
 
-		question := lipgloss.NewStyle().Width(50).Align(lipgloss.Center).Render("Are you sure you want to eat marmalade?")
+		question := style.Copy().Width(50).Align(lipgloss.Center).Render("Are you sure you want to eat marmalade?")
 		buttons := lipgloss.JoinHorizontal(lipgloss.Top, okButton, cancelButton)
 		ui := lipgloss.JoinVertical(lipgloss.Center, question, buttons)
 
@@ -254,7 +259,7 @@ func main() {
 		b := strings.Builder{}
 		for _, x := range colors {
 			for _, y := range x {
-				s := lipgloss.NewStyle().SetString("  ").Background(lipgloss.Color(y))
+				s := style.Copy().SetString("  ").Background(lipgloss.Color(y))
 				b.WriteString(s.String())
 			}
 			b.WriteRune('\n')
@@ -332,7 +337,7 @@ func main() {
 	}
 
 	// Okay, let's print it
-	fmt.Println(docStyle.Render(doc.String()))
+	_, _ = fmt.Fprintln(output, docStyle.Render(doc.String()))
 }
 
 func colorGrid(xSteps, ySteps int) [][]string {
